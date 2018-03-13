@@ -10,22 +10,6 @@ module.exports = (app) => {
     .get(passport.authenticate('jwt', config.session), api.getAllCompanies(models.Company, app.get('secret')))
 
   /*
-   * Маршруты удаления.
-   */
-
-  //* Удалить предприятие.
-  app.route('/api/v1/company/:companyId/')
-    .delete(passport.authenticate('jwt', config.session), api.removeCompany(models.Company, app.get('secret')))
-
-  //* Удалить цех.
-  app.route('/api/v1/company/:companyId/:divisionId/')
-    .delete(passport.authenticate('jwt', config.session), api.removeDivision(models.Company, app.get('secret')))
-
-  //* Удалить участок.
-  app.route('/api/v1/company/:companyId/:divisionId/:departmentId/')
-    .delete(passport.authenticate('jwt', config.session), api.removeDepartment(models.Company, app.get('secret')))
-
-  /*
    * Маршруты добавления.
    */
 
@@ -40,6 +24,22 @@ module.exports = (app) => {
   //* Добавить участок.
   app.route('/api/v1/company/:companyId/:divisionId/')
     .post(passport.authenticate('jwt', config.session), api.addDepartment(models.Company, app.get('secret')))
+
+  /*
+   * Маршруты удаления.
+   */
+
+  //* Удалить предприятие.
+  app.route('/api/v1/company/:companyId/')
+    .delete(passport.authenticate('jwt', config.session), api.removeCompany(models.Company, app.get('secret')))
+
+  //* Удалить цех.
+  app.route('/api/v1/company/:companyId/:divisionId/')
+    .delete(passport.authenticate('jwt', config.session), api.removeDivision(models.Company, app.get('secret')))
+
+  //* Удалить участок.
+  app.route('/api/v1/company/:companyId/:divisionId/:departmentId/')
+    .delete(passport.authenticate('jwt', config.session), api.removeDepartment(models.Company, app.get('secret')))
 
   /*
    * Маршруты редактирования.

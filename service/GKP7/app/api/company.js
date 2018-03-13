@@ -16,57 +16,6 @@ api.getAllCompanies = (Company, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-//* Удалить предприятие.
-api.removeCompany = (Company, Token) => (req, res) => {
-  if (Token) {
-    Company.findOneAndRemove({'companyId': req.params.companyId}, (err, company) => {
-      if (err) res.status(400).json(err)
-      if (company) {
-        res.status(200).json({success: true, message: 'Предприятие удалено.'})
-      } else {
-        res.status(200).json({success: false, message: 'Такое предприятие не найдено.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-//* Удалить цех.
-api.removeDivision = (Company, Token) => (req, res) => {
-  if (Token) {
-    Company.findOneAndUpdate(
-      {'companyId': req.params.companyId},
-      {$pull: {'companyDivisions': {'divisionId': req.params.divisionId}}},
-      {rawResult: true},
-      (err, company) => {
-        if (err) res.status(400).json(err)
-        if (company) {
-          res.status(200).json({success: true, message: 'Цех удален.'})
-        } else {
-          res.status(200).json({success: false, message: 'Такой цех не найден.'})
-        }
-      })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-//* Удалить участок.
-api.removeDepartment = (Company, Token) => (req, res) => {
-  if (Token) {
-    Company.findOneAndUpdate(
-      {'companyId': parseInt(req.params.companyId)},
-      {$pull: {'companyDivisions.$[element].divisionDepartments': {'departmentId': parseInt(req.params.departmentId)}}},
-      {arrayFilters: [{'element.divisionId': parseInt(req.params.divisionId)}], rawResult: true},
-      (err, company) => {
-        if (err) res.status(400).json(err)
-        if (company) {
-          res.status(200).json({success: true, message: 'Участок удален.', raw: company})
-        } else {
-          res.status(200).json({success: false, message: 'Не найдено.'})
-        }
-      }
-    )
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
 //* Добавить предприятие.
 api.addCompany = (Company, Token) => (req, res) => {
   if (Token) {
@@ -143,6 +92,57 @@ api.addDepartment = (Company, Token) => (req, res) => {
         }
       )
     } else return res.status(200).json({success: false, message: 'Нужные параметры не указаны'})
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Удалить предприятие.
+api.removeCompany = (Company, Token) => (req, res) => {
+  if (Token) {
+    Company.findOneAndRemove({'companyId': req.params.companyId}, (err, company) => {
+      if (err) res.status(400).json(err)
+      if (company) {
+        res.status(200).json({success: true, message: 'Предприятие удалено.'})
+      } else {
+        res.status(200).json({success: false, message: 'Такое предприятие не найдено.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Удалить цех.
+api.removeDivision = (Company, Token) => (req, res) => {
+  if (Token) {
+    Company.findOneAndUpdate(
+      {'companyId': req.params.companyId},
+      {$pull: {'companyDivisions': {'divisionId': req.params.divisionId}}},
+      {rawResult: true},
+      (err, company) => {
+        if (err) res.status(400).json(err)
+        if (company) {
+          res.status(200).json({success: true, message: 'Цех удален.'})
+        } else {
+          res.status(200).json({success: false, message: 'Такой цех не найден.'})
+        }
+      })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Удалить участок.
+api.removeDepartment = (Company, Token) => (req, res) => {
+  if (Token) {
+    Company.findOneAndUpdate(
+      {'companyId': parseInt(req.params.companyId)},
+      {$pull: {'companyDivisions.$[element].divisionDepartments': {'departmentId': parseInt(req.params.departmentId)}}},
+      {arrayFilters: [{'element.divisionId': parseInt(req.params.divisionId)}], rawResult: true},
+      (err, company) => {
+        if (err) res.status(400).json(err)
+        if (company) {
+          res.status(200).json({success: true, message: 'Участок удален.', raw: company})
+        } else {
+          res.status(200).json({success: false, message: 'Не найдено.'})
+        }
+      }
+    )
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
