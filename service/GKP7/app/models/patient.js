@@ -1,4 +1,6 @@
 const VaccineSchema = require('./vaccine')
+const JobSchema = require('./medos/job')
+const MedInspectionSchema = require('./medos/medos')
 
 const mongoose = require('mongoose')
 
@@ -11,14 +13,34 @@ let sortByCreated = function (a, b) {
 }
 
 const Schema = mongoose.Schema({
-  fio: String,
-  dateBirth: Date,
-  sex: Boolean,
+  fio: {
+    type: String,
+    required: true
+  },
+  dateBirth: {
+    type: Date,
+    required: true
+  },
+  sex: {
+    type: Boolean,
+    required: true
+  },
   hasActiveMedos: {
     type: Boolean,
     default: false
   },
+  passport: {
+    type: String,
+    required: true
+  },
+  phone: {
+    type: String,
+    required: true
+  },
   vaccines: [VaccineSchema],
+  rg_results: [],
+  activeJob: JobSchema,
+  medicalInspections: [MedInspectionSchema],
   createdAt: {
     type: Date,
     default: Date.now

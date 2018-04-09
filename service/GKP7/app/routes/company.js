@@ -5,7 +5,7 @@ const models = require('./../setup')
 module.exports = (app) => {
   const api = app.GKP7.app.api.company
 
-  //* Вернуть всю базу предприятий
+  //* Вернуть всю базу предприятий.
   app.route('/api/v1/companies')
     .get(passport.authenticate('jwt', config.session), api.getAllCompanies(models.Company, app.get('secret')))
 
