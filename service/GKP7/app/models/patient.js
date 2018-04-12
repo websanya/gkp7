@@ -25,10 +25,6 @@ const Schema = mongoose.Schema({
     type: Boolean,
     required: true
   },
-  hasActiveMedos: {
-    type: Boolean,
-    default: false
-  },
   passport: {
     type: String,
     required: true
@@ -37,10 +33,15 @@ const Schema = mongoose.Schema({
     type: String,
     required: true
   },
+  activeJob: JobSchema,
+  hasActiveMedos: {
+    type: Boolean,
+    default: false
+  },
+  activeMedos: MedInspectionSchema,
+  medicalInspections: [MedInspectionSchema],
   vaccines: [VaccineSchema],
   rg_results: [],
-  activeJob: JobSchema,
-  medicalInspections: [MedInspectionSchema],
   createdAt: {
     type: Date,
     default: Date.now

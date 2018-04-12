@@ -145,22 +145,89 @@ api.getPatientsByFIO = (Patient, Token) => (req, res) => {
  * Методы про медосмотры.
  */
 
+api.getMedosPatientsByFIO = (Patient, Token) => (req, res) => {
+  if (Token) {
+    if (req.params.lastName || req.params.firstName || req.params.middleName) {
+      let val = ''
+      if (req.params.lastName !== ' ') {
+        val += req.params.lastName + '[А-Я]*'
+      } else {
+        val += '[А-Я]*'
+      }
+      if (req.params.firstName !== ' ') {
+        val += '\\s+' + req.params.firstName + '[А-Я]*'
+      } else {
+        val += '\\s+[А-Я]*'
+      }
+      if (req.params.middleName !== ' ') {
+        val += '\\s+' + req.params.middleName + '[А-Я]*'
+      } else {
+        val += '\\s+[А-Я]*'
+      }
+      Patient.find({'fio': {$regex: new RegExp(val), $options: 'i'}, 'hasActiveMedos': true}, (err, patients) => {
+        if (err) res.status(400).json(err)
+        if (patients.length === 0) {
+          res.status(200).json({success: false, message: 'Пациенты не найдены.'})
+        } else {
+          res.status(200).json({success: true, patients: patients})
+        }
+      })
+    } else {
+      res.status(200).json({success: false, message: 'Пустой запрос.'})
+    }
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
 api.addActiveMedos = (Patient, Token) => (req, res) => {
   let tempMedos = {
     medosType: req.body.currentMedos.medosType,
-    medosJob: req.body.currentMedos.medosJob,
-    medosIsActive: req.body.currentMedos.medosIsActive
+    medosJob: req.body.currentMedos.medosJob
   }
   if (Token) {
     Patient.findByIdAndUpdate(req.params.patId, {
-      $push: {medicalInspections: tempMedos},
-      $set: {hasActiveMedos: true}
+      $set: {activeMedos: tempMedos, hasActiveMedos: true}
     }, {
       new: true
     }, (err, patient) => {
       if (err) res.status(400).json(err)
       if (patient) {
         res.status(200).json({success: true, message: 'Медосмотр добавлен.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.updatePatientHarms = (Patient, Token) => (req, res) => {
+  let tempHarms = req.body.medosHarms
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $set: {'activeMedos.medosHarms': tempHarms}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Вредности обновлены.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.updatePatientParameters = (Patient, Token) => (req, res) => {
+  let tempParameters = req.body.medosParameters
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $set: {'activeMedos.medosParameters': tempParameters}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Данные обновлены.', patient: patient})
       } else {
         res.status(200).json({success: false, message: 'Такой пациент не найден.'})
       }

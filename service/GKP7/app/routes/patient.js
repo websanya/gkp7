@@ -25,8 +25,17 @@ module.exports = (app) => {
    * Маршруты про медосмотры.
    */
 
+  app.route('/api/v1/patient/medos/:lastName/:firstName/:middleName/')
+    .get(passport.authenticate('jwt', config.session), api.getMedosPatientsByFIO(models.Patient, app.get('secret')))
+
   app.route('/api/v1/patient/:patId/active-medos/')
     .post(passport.authenticate('jwt', config.session), api.addActiveMedos(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/harms/')
+    .put(passport.authenticate('jwt', config.session), api.updatePatientHarms(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/parameters/')
+    .put(passport.authenticate('jwt', config.session), api.updatePatientParameters(models.Patient, app.get('secret')))
 
   /**
    * Маршруты про прививки.

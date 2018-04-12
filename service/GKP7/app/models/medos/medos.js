@@ -1,6 +1,27 @@
 const mongoose = require('mongoose')
 const JobSchema = require('./job')
 
+const ParametersSchema = mongoose.Schema({
+  height: Number,
+  weight: Number,
+  pulse: Number,
+  ad: {
+    sys: Number,
+    dia: Number
+  },
+  dynamometry: {
+    left: Number,
+    right: Number
+  },
+  skin: {
+    norma: Boolean,
+    pathology: String
+  },
+  cigarettes: Number,
+  alcohol: String,
+  comment: String
+})
+
 const HarmSchema = mongoose.Schema({
   harmId: {
     type: Number,
@@ -41,24 +62,19 @@ const Schema = mongoose.Schema({
     typeName: String
   },
   medosJob: JobSchema,
-  medosHarms: [HarmSchema],
-  medosDoctors: [DoctorSchema],
-  medosExams: [ExamSchema],
   medosRegistrationDate: {
     type: Date,
     default: Date.now
   },
+  medosHarms: [HarmSchema],
+  medosParameters: ParametersSchema,
+  medosDoctors: [DoctorSchema],
+  medosExams: [ExamSchema],
   medosCompletionDate: Date,
   medosIsComplete: {
     type: Boolean,
     default: false
   },
-  medosIsActive: {
-    type: Boolean,
-    default: false
-  },
-  medosResults: [],
-  medosVisits: [],
   createdAt: {
     type: Date,
     default: Date.now
