@@ -1,4 +1,5 @@
-const VaccineSchema = require('./vaccine')
+const VaccineSchema = require('./patient/vaccine')
+const RGSchema = require('./patient/rg')
 const JobSchema = require('./medos/job')
 const MedInspectionSchema = require('./medos/medos')
 
@@ -40,8 +41,13 @@ const Schema = mongoose.Schema({
   },
   activeMedos: MedInspectionSchema,
   medicalInspections: [MedInspectionSchema],
+  hasActiveRgResult: {
+    type: Boolean,
+    default: false
+  },
+  activeRgResult: RGSchema,
+  rgResults: [RGSchema],
   vaccines: [VaccineSchema],
-  rg_results: [],
   createdAt: {
     type: Date,
     default: Date.now
@@ -49,6 +55,10 @@ const Schema = mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
 

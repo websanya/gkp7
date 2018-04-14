@@ -38,6 +38,23 @@ module.exports = (app) => {
     .put(passport.authenticate('jwt', config.session), api.updatePatientParameters(models.Patient, app.get('secret')))
 
   /**
+   * Маршруты про снимки.
+   */
+
+  app.route('/api/v1/patient/:patId/rg/')
+    .get(passport.authenticate('jwt', config.session), api.getPatientRgResults(models.Patient, app.get('secret')))
+  app.route('/api/v1/patient/:patId/rg/')
+    .post(passport.authenticate('jwt', config.session), api.registerPatientRgResult(models.Patient, app.get('secret')))
+  app.route('/api/v1/patient/:patId/rg/')
+    .put(passport.authenticate('jwt', config.session), api.finalizePatientRgResult(models.Patient, app.get('secret')))
+  app.route('/api/v1/patient/:patId/rg/active/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatientActiveRg(models.Patient, app.get('secret')))
+  app.route('/api/v1/patient/:patId/rg/:rgId/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatientCertainRg(models.Patient, app.get('secret')))
+  app.route('/api/v1/patient/:patId/rgFull/')
+    .post(passport.authenticate('jwt', config.session), api.addPatientRgResult(models.Patient, app.get('secret')))
+
+  /**
    * Маршруты про прививки.
    */
 

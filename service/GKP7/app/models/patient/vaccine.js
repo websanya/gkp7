@@ -1,14 +1,6 @@
 const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema({
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
   vaccine: {
     vaccineName: String,
     drugName: String,
@@ -24,6 +16,14 @@ const Schema = mongoose.Schema({
   lpuCode: String,
   riskGroup: String,
   payment: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
   updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

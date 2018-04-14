@@ -19,14 +19,10 @@ api.makePatient = (Patient, Token) => (req, res) => {
     } else if (req.body.phone === undefined) {
       api.errorHandler(res, 'Не указан номер телефона')
     } else {
-      //* Переводим дату из формата dd.mm.yyyy в удобный.
-      const inputBirthDate = req.body.dateBirth
-      const pattern = /(\d{2})\.(\d{2})\.(\d{4})/
-      const outputBirthDate = new Date(inputBirthDate.replace(pattern, '$3-$2-$1'))
       //* Создаем объект будущего пациента.
       let patient = new Patient({
         fio: req.body.fio,
-        dateBirth: outputBirthDate,
+        dateBirth: api.dateToIso(req.body.dateBirth),
         sex: req.body.sex,
         passport: req.body.passport,
         phone: req.body.phone
@@ -75,11 +71,7 @@ api.updatePatient = (Patient, Token) => (req, res) => {
       tempObj.sex = req.body.sex
     }
     if (req.body.dateBirth !== undefined) {
-      //* Переводим дату из формата dd.mm.yyyy в удобный.
-      const inputBirthDate = req.body.dateBirth
-      const pattern = /(\d{2})\.(\d{2})\.(\d{4})/
-      const outputBirthDate = inputBirthDate.replace(pattern, '$3-$2-$1')
-      tempObj.dateBirth = new Date(outputBirthDate)
+      tempObj.dateBirth = new Date(api.dateToIso(req.body.dateBirth))
     }
     if (req.body.passport !== undefined) {
       tempObj.passport = req.body.passport
@@ -236,6 +228,120 @@ api.updatePatientParameters = (Patient, Token) => (req, res) => {
 }
 
 /**
+ * Методы про снимки.
+ */
+
+api.getPatientRgResults = (Patient, Token) => (req, res) => {
+  if (Token) {
+    Patient.findById(req.params.patId, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        if (patient.rgResults.length === 0) {
+          res.status(200).json({success: false, message: 'У этого пациента нет снимков.'})
+        } else {
+          res.status(200).json({success: true, rgResults: patient.rgResults})
+        }
+      } else {
+        res.status(200).json({success: false, message: 'Такого пациента не найдено.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.registerPatientRgResult = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempRgResult = req.body.activeRgResult
+    tempRgResult.rgDate = api.dateToIso(tempRgResult.rgDate)
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $set: {activeRgResult: tempRgResult, hasActiveRgResult: true}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Снимок зарегистрирован.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.finalizePatientRgResult = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempRgResult = req.body.rgResult
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $unset: {activeRgResult: true},
+      $set: {hasActiveRgResult: false},
+      $push: {rgResults: tempRgResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Описание добавлено.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.addPatientRgResult = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempRgResult = req.body.rgResult
+    tempRgResult.rgDate = api.dateToIso(tempRgResult.rgDate)
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $push: {rgResults: tempRgResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Снимок добавлен.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.removePatientActiveRg = (Patient, Token) => (req, res) => {
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $unset: {activeRgResult: true},
+      $set: {hasActiveRgResult: false}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Зарегистрированный снимок удален.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.removePatientCertainRg = (Patient, Token) => (req, res) => {
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $pull: {'rgResults': {_id: req.params.rgId}}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Зарегистрированный снимок удален.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+/**
  * Методы про прививки.
  */
 
@@ -301,6 +407,13 @@ api.errorHandler = (res, msg) => {
     success: false,
     message: msg
   })
+}
+
+api.dateToIso = (input) => {
+  //* Переводим дату из формата dd.mm.yyyy в yyyy-mm-dd.
+  const inputDate = input
+  const pattern = /(\d{2})\.(\d{2})\.(\d{4})/
+  return inputDate.replace(pattern, '$3-$2-$1')
 }
 
 module.exports = api
