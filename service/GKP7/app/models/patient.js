@@ -1,5 +1,8 @@
 const VaccineSchema = require('./patient/vaccine')
 const RGSchema = require('./patient/rg')
+const bloodClinicalResultSchema = require('./patient/bloodClinicalresult')
+const urineClinicalResultSchema = require('./patient/urineClinicalResult')
+const bloodBioChemicalResultSchema = require('./patient/bloodBioChemicalResult')
 const JobSchema = require('./medos/job')
 const MedInspectionSchema = require('./medos/medos')
 
@@ -47,6 +50,9 @@ const Schema = mongoose.Schema({
   },
   activeRgResult: RGSchema,
   rgResults: [RGSchema],
+  bloodClinicalResults: [bloodClinicalResultSchema],
+  urineClinicalResults: [urineClinicalResultSchema],
+  bloodBioChemicalResults: [bloodBioChemicalResultSchema],
   vaccines: [VaccineSchema],
   createdAt: {
     type: Date,

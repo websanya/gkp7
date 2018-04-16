@@ -55,6 +55,19 @@ module.exports = (app) => {
     .post(passport.authenticate('jwt', config.session), api.addPatientRgResult(models.Patient, app.get('secret')))
 
   /**
+   * Маршруты про анализы.
+   */
+
+  app.route('/api/v1/patient/:patId/analyze/')
+    .post(passport.authenticate('jwt', config.session), api.addPatientAnalyze(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/analyze/:analyzeId/')
+    .put(passport.authenticate('jwt', config.session), api.editPatientAnalyze(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/analyze/:analyzeId/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatientAnalyze(models.Patient, app.get('secret')))
+
+  /**
    * Маршруты про прививки.
    */
 

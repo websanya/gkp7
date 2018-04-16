@@ -342,6 +342,107 @@ api.removePatientCertainRg = (Patient, Token) => (req, res) => {
 }
 
 /**
+ * Методы про анализы.
+ */
+
+api.addPatientAnalyze = (Patient, Token) => (req, res) => {
+  if (Token) {
+    const analyzeResult = req.body.analyzeResult
+    let analyzeArray = ''
+    switch (req.body.analyzeType) {
+      case 'bloodClinical':
+        analyzeResult.bloodDate = api.dateToIso(analyzeResult.bloodDate)
+        analyzeArray = 'bloodClinicalResults'
+        break
+      case 'urineClinical':
+        analyzeResult.urineDate = api.dateToIso(analyzeResult.urineDate)
+        analyzeArray = 'urineClinicalResults'
+        break
+    }
+    let push = {$push: {}}
+    push.$push[analyzeArray] = analyzeResult
+    Patient.findByIdAndUpdate(req.params.patId, push, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Анализ добавлен.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.editPatientAnalyze = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let analyzeResult = req.body.analyzeResult
+    switch (req.body.analyzeType) {
+      case 'bloodClinical':
+        analyzeResult.bloodDate = api.dateToIso(analyzeResult.bloodDate)
+        Patient.findOneAndUpdate({_id: req.params.patId, 'bloodClinicalResults._id': req.params.analyzeId}, {
+          $set: {
+            'bloodClinicalResults.$': analyzeResult
+          }
+        }, {
+          new: true
+        }, (err, patient) => {
+          if (err) res.status(400).json(err)
+          if (patient) {
+            res.status(200).json({success: true, message: 'Анализ крови изменен.', patient: patient})
+          } else {
+            res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+          }
+        })
+        break
+      case 'urineClinical':
+        analyzeResult.urineDate = api.dateToIso(analyzeResult.urineDate)
+        Patient.findOneAndUpdate({_id: req.params.patId, 'urineClinicalResults._id': req.params.analyzeId}, {
+          $set: {
+            'urineClinicalResults.$': analyzeResult
+          }
+        }, {
+          new: true
+        }, (err, patient) => {
+          if (err) res.status(400).json(err)
+          if (patient) {
+            res.status(200).json({success: true, message: 'Анализ мочи изменен.', patient: patient})
+          } else {
+            res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+          }
+        })
+        break
+    }
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.removePatientAnalyze = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let analyzeArray = ''
+    switch (req.body.analyzeType) {
+      case 'bloodClinical':
+        analyzeArray = 'bloodClinicalResults'
+        break
+      case 'urineClinical':
+        analyzeArray = 'urineClinicalResults'
+        break
+    }
+    let pull = {$pull: {}}
+    pull.$pull[analyzeArray] = {_id: req.params.analyzeId}
+    Patient.findByIdAndUpdate(req.params.patId, pull, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Анализ удален.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+/**
  * Методы про прививки.
  */
 
