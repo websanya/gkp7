@@ -37,6 +37,18 @@ module.exports = (app) => {
   app.route('/api/v1/patient/:patId/parameters/')
     .put(passport.authenticate('jwt', config.session), api.updatePatientParameters(models.Patient, app.get('secret')))
 
+  app.route('/api/v1/patient/:patId/doctorResult/')
+    .post(passport.authenticate('jwt', config.session), api.addDoctorResult(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/doctorResult/:resultId/')
+    .put(passport.authenticate('jwt', config.session), api.updateDoctorResult(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/examResult/')
+    .post(passport.authenticate('jwt', config.session), api.addExamResult(models.Patient, app.get('secret')))
+
+  app.route('/api/v1/patient/:patId/examResult/:examId/')
+    .put(passport.authenticate('jwt', config.session), api.updateExamResult(models.Patient, app.get('secret')))
+
   /**
    * Маршруты про снимки.
    */

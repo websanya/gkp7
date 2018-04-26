@@ -2,18 +2,43 @@ const mongoose = require('mongoose')
 
 const api = {}
 
-api.signup = (User) => (req, res) => {
+api.createUser = (User, Token) => (req, res) => {
+  let isSuperUser = req.body.isSuperUser
+  let isAdmin = req.body.isAdmin
+  let roles = req.body.roles
+
   if (!req.body.username || !req.body.password) {
     res.json({
       success: false,
       message: 'Заполнены не все обязательные поля.'
     })
   } else {
-    const user = new User({
+    let user = new User({
       username: req.body.username,
       password: req.body.password,
-      FIO: req.body.FIO
+      fio: req.body.fio
     })
+
+    if (isAdmin) {
+      user.roles.superuser = true
+    } else if (isSuperUser) {
+      user.roles = {
+        medos: {
+          admin: true
+        },
+        radiography: {
+          admin: true
+        },
+        laboratory: {
+          admin: true
+        },
+        vaccination: {
+          admin: true
+        }
+      }
+    } else {
+      user.roles = roles
+    }
 
     user.save(error => {
       if (error) return res.status(400).json({success: false, message: 'Имя пользователя уже существует.'})

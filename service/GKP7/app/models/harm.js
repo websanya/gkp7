@@ -9,7 +9,8 @@ const ExamSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  examNote: String
+  examNote: String,
+  examRoom: String
 })
 
 const DoctorSchema = mongoose.Schema({
@@ -20,7 +21,8 @@ const DoctorSchema = mongoose.Schema({
   doctorName: {
     type: String,
     required: true
-  }
+  },
+  doctorRoom: String
 })
 
 const Schema = mongoose.Schema({

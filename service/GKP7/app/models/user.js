@@ -1,112 +1,94 @@
+/**
+ * doctor:
+ * 1 - терапевт
+ * 2 - оториноларинголог
+ * 3 - дерматовенеролог
+ * 4 - офтальмолог
+ * 5 - хирург
+ * 6 - невролог
+ * 7 - стоматолог
+ * * 8 - онколог
+ * * 9 - уролог
+ * * 10 - аллерголог
+ * * 11 - эндокринолог
+ * 12 - гинеколог
+ *
+ * exam:
+ * 1 - ОФД (спиро, экг)
+ * 2 - Аудиометрист
+ */
+
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt-nodejs')
 
 const Schema = mongoose.Schema({
   username: {
-    type: 'String',
+    type: String,
     unique: true,
     required: true
   },
   password: {
-    type: 'String',
+    type: String,
     required: true
   },
   fio: {
-    type: 'String',
+    type: String,
     required: true
   },
   roles: {
     superuser: {
-      type: 'Boolean',
+      type: Boolean,
       default: false
     },
     medos: {
-      reg: {
-        type: 'Boolean',
+      receptionist: {
+        type: Boolean,
         default: false
       },
-      dovr: {
-        type: 'Boolean',
-        default: false
-      },
-      ofd: {
-        type: 'Boolean',
+      premedical: {
+        type: Boolean,
         default: false
       },
       doctor: {
-        type: 'Number',
-        default: false
+        type: Number,
+        default: 0
       },
-      supervisor: {
-        type: 'Boolean',
-        default: false
+      exam: {
+        type: Number,
+        default: 0
       },
       admin: {
-        type: 'Boolean',
+        type: Boolean,
         default: false
       }
     },
-    fg: {
-      reg: {
-        type: 'Boolean',
-        default: false
-      },
-      doctor: {
-        type: 'Boolean',
-        default: false
-      },
-      supervisor: {
-        type: 'Boolean',
+    radiography: {
+      assistant: {
+        type: Boolean,
         default: false
       },
       admin: {
-        type: 'Boolean',
+        type: Boolean,
         default: false
       }
     },
-    lab: {
-      reg: {
-        type: 'Boolean',
-        default: false
-      },
-      doctor: {
-        type: 'Boolean',
-        default: false
-      },
-      supervisor: {
-        type: 'Boolean',
+    laboratory: {
+      assistant: {
+        type: Boolean,
         default: false
       },
       admin: {
-        type: 'Boolean',
+        type: Boolean,
         default: false
       }
     },
-    priv: {
-      reg: {
-        type: 'Boolean',
-        default: false
-      },
-      doctor: {
-        type: 'Boolean',
-        default: false
-      },
-      supervisor: {
-        type: 'Boolean',
+    vaccination: {
+      assistant: {
+        type: Boolean,
         default: false
       },
       admin: {
-        type: 'Boolean',
-        default: false
-      }
-    },
-    vred: {
-      supervisor: {
-        type: 'Boolean',
-        default: false
-      },
-      admin: {
-        type: 'Boolean',
+        type: Boolean,
         default: false
       }
     }

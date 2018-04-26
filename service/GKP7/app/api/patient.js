@@ -193,9 +193,15 @@ api.addActiveMedos = (Patient, Token) => (req, res) => {
 
 api.updatePatientHarms = (Patient, Token) => (req, res) => {
   let tempHarms = req.body.medosHarms
+  let tempDoctors = req.body.medosDoctors
+  let tempExams = req.body.medosExams
   if (Token) {
     Patient.findByIdAndUpdate(req.params.patId, {
-      $set: {'activeMedos.medosHarms': tempHarms}
+      $set: {
+        'activeMedos.medosHarms': tempHarms,
+        'activeMedos.medosDoctors': tempDoctors,
+        'activeMedos.medosExams': tempExams
+      }
     }, {
       new: true
     }, (err, patient) => {
@@ -220,6 +226,84 @@ api.updatePatientParameters = (Patient, Token) => (req, res) => {
       if (err) res.status(400).json(err)
       if (patient) {
         res.status(200).json({success: true, message: 'Данные обновлены.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.addDoctorResult = (Patient, Token) => (req, res) => {
+  let tempDoctorResult = req.body.doctorResult
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $push: {'activeMedos.medosDoctorResults': tempDoctorResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Осмотр добавлен.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.updateDoctorResult = (Patient, Token) => (req, res) => {
+  let tempDoctorResult = req.body.doctorResult
+  if (Token) {
+    Patient.findOneAndUpdate({
+      _id: req.params.patId,
+      'activeMedos.medosDoctorResults._id': req.params.resultId
+    }, {
+      $set: {'activeMedos.medosDoctorResults.$': tempDoctorResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Осмотр изменен.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.addExamResult = (Patient, Token) => (req, res) => {
+  let tempExamResult = req.body.examResult
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $push: {'activeMedos.medosExamResults': tempExamResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Обследование добавлено.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.updateExamResult = (Patient, Token) => (req, res) => {
+  let tempExamResult = req.body.examResult
+  if (Token) {
+    Patient.findOneAndUpdate({
+      _id: req.params.patId,
+      'activeMedos.medosExamResults._id': req.params.examId
+    }, {
+      $set: {'activeMedos.medosExamResults.$': tempExamResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Обследование изменено.', patient: patient})
       } else {
         res.status(200).json({success: false, message: 'Такой пациент не найден.'})
       }
@@ -350,9 +434,9 @@ api.addPatientAnalyze = (Patient, Token) => (req, res) => {
     const analyzeResult = req.body.analyzeResult
     let analyzeArray = ''
     switch (req.body.analyzeType) {
-      case 'bloodClinical':
+      case 'blood':
         analyzeResult.bloodDate = api.dateToIso(analyzeResult.bloodDate)
-        analyzeArray = 'bloodClinicalResults'
+        analyzeArray = 'bloodResults'
         break
       case 'urineClinical':
         analyzeResult.urineDate = api.dateToIso(analyzeResult.urineDate)
@@ -378,11 +462,14 @@ api.editPatientAnalyze = (Patient, Token) => (req, res) => {
   if (Token) {
     let analyzeResult = req.body.analyzeResult
     switch (req.body.analyzeType) {
-      case 'bloodClinical':
+      case 'blood':
         analyzeResult.bloodDate = api.dateToIso(analyzeResult.bloodDate)
-        Patient.findOneAndUpdate({_id: req.params.patId, 'bloodClinicalResults._id': req.params.analyzeId}, {
+        Patient.findOneAndUpdate({
+          _id: req.params.patId,
+          'bloodResults._id': req.params.analyzeId
+        }, {
           $set: {
-            'bloodClinicalResults.$': analyzeResult
+            'bloodResults.$': analyzeResult
           }
         }, {
           new: true
@@ -420,8 +507,8 @@ api.removePatientAnalyze = (Patient, Token) => (req, res) => {
   if (Token) {
     let analyzeArray = ''
     switch (req.body.analyzeType) {
-      case 'bloodClinical':
-        analyzeArray = 'bloodClinicalResults'
+      case 'blood':
+        analyzeArray = 'bloodResults'
         break
       case 'urineClinical':
         analyzeArray = 'urineClinicalResults'

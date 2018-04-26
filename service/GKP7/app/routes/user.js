@@ -5,8 +5,8 @@ const models = require('./../setup')
 module.exports = (app) => {
   const api = app.GKP7.app.api.user
 
-  app.route('/api/v1/signup')
-    .post(api.signup(models.User))
+  app.route('/api/v1/user')
+    .post(passport.authenticate('jwt', config.session), api.createUser(models.User, app.get('secret')))
 
   app.route('/api/v1/user')
     .get(passport.authenticate('jwt', config.session), api.getUserById(models.User, app.get('secret')))

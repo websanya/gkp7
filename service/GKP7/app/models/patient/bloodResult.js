@@ -23,7 +23,11 @@ const Schema = mongoose.Schema({
     lymphocytes: String,
     monocytes: String,
     normoblasts: String,
-    tng: String
+    tng: String,
+    sugar: String,
+    cholesterol: String,
+    prothrombin: String,
+    inr: String
   },
   medosId: mongoose.Schema.Types.ObjectId,
   createdAt: {

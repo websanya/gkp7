@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const JobSchema = require('./job')
+const DoctorResultSchema = require('./doctorResult')
+const ExamResultSchema = require('./examResult')
 
 const ParametersSchema = mongoose.Schema({
   height: Number,
@@ -34,26 +36,55 @@ const HarmSchema = mongoose.Schema({
 })
 
 const ExamSchema = mongoose.Schema({
-  examId: {
-    type: Number,
-    required: true
-  },
-  examName: {
-    type: String,
-    required: true
-  },
-  examNote: String
+  mustExams: [{
+    examId: {
+      type: Number,
+      required: true
+    },
+    examName: {
+      type: String,
+      required: true
+    },
+    examNote: String,
+    examRoom: String
+  }],
+  addonExams: [{
+    examId: {
+      type: Number,
+      required: true
+    },
+    examName: {
+      type: String,
+      required: true
+    },
+    examNote: String,
+    examRoom: String
+  }]
 })
 
 const DoctorSchema = mongoose.Schema({
-  doctorId: {
-    type: Number,
-    required: true
-  },
-  doctorName: {
-    type: String,
-    required: true
-  }
+  mustDoctors: [{
+    doctorId: {
+      type: Number,
+      required: true
+    },
+    doctorName: {
+      type: String,
+      required: true
+    },
+    doctorRoom: String
+  }],
+  addonDoctors: [{
+    doctorId: {
+      type: Number,
+      required: true
+    },
+    doctorName: {
+      type: String,
+      required: true
+    },
+    doctorRoom: String
+  }]
 })
 
 const Schema = mongoose.Schema({
@@ -68,8 +99,10 @@ const Schema = mongoose.Schema({
   },
   medosHarms: [HarmSchema],
   medosParameters: ParametersSchema,
-  medosDoctors: [DoctorSchema],
-  medosExams: [ExamSchema],
+  medosDoctors: DoctorSchema,
+  medosExams: ExamSchema,
+  medosDoctorResults: [DoctorResultSchema],
+  medosExamResults: [ExamResultSchema],
   medosCompletionDate: Date,
   medosIsComplete: {
     type: Boolean,
