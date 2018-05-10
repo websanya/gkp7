@@ -1,5 +1,3 @@
-const mongoose = require('mongoose')
-
 const api = {}
 
 /**
@@ -234,8 +232,8 @@ api.updatePatientParameters = (Patient, Token) => (req, res) => {
 }
 
 api.addDoctorResult = (Patient, Token) => (req, res) => {
-  let tempDoctorResult = req.body.doctorResult
   if (Token) {
+    let tempDoctorResult = req.body.doctorResult
     Patient.findByIdAndUpdate(req.params.patId, {
       $push: {'activeMedos.medosDoctorResults': tempDoctorResult}
     }, {
@@ -252,8 +250,8 @@ api.addDoctorResult = (Patient, Token) => (req, res) => {
 }
 
 api.updateDoctorResult = (Patient, Token) => (req, res) => {
-  let tempDoctorResult = req.body.doctorResult
   if (Token) {
+    let tempDoctorResult = req.body.doctorResult
     Patient.findOneAndUpdate({
       _id: req.params.patId,
       'activeMedos.medosDoctorResults._id': req.params.resultId
@@ -272,9 +270,29 @@ api.updateDoctorResult = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.addExamResult = (Patient, Token) => (req, res) => {
-  let tempExamResult = req.body.examResult
+api.addFinalResult = (Patient, Token) => (req, res) => {
   if (Token) {
+    let tempMedos = req.body.medosResult
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $push: {'medosArchive': tempMedos},
+      $set: {'hasActiveMedos': false},
+      $unset: {'activeMedos': true}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Мед. осмотр заархивирован.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+api.addExamResult = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempExamResult = req.body.examResult
     Patient.findByIdAndUpdate(req.params.patId, {
       $push: {'activeMedos.medosExamResults': tempExamResult}
     }, {

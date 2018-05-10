@@ -43,6 +43,9 @@ module.exports = (app) => {
   app.route('/api/v1/patient/:patId/doctorResult/:resultId/')
     .put(passport.authenticate('jwt', config.session), api.updateDoctorResult(models.Patient, app.get('secret')))
 
+  app.route('/api/v1/patient/:patId/medosFinal/')
+    .post(passport.authenticate('jwt', config.session), api.addFinalResult(models.Patient, app.get('secret')))
+
   app.route('/api/v1/patient/:patId/examResult/')
     .post(passport.authenticate('jwt', config.session), api.addExamResult(models.Patient, app.get('secret')))
 
