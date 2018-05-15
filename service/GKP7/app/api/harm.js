@@ -5,7 +5,11 @@ const api = {}
 //* Вернуть всю базу вредностей.
 api.getAllHarms = (Harm, Token) => (req, res) => {
   if (Token) {
-    Harm.find({}, (err, harms) => {
+    Harm.find({}, {}, {
+      sort: {
+        harmName: 1
+      }
+    }, (err, harms) => {
       if (err) res.status(400).json(err)
       if (harms) {
         res.status(200).json({success: true, harms: harms})

@@ -460,6 +460,14 @@ api.addPatientAnalyze = (Patient, Token) => (req, res) => {
         analyzeResult.urineDate = api.dateToIso(analyzeResult.urineDate)
         analyzeArray = 'urineClinicalResults'
         break
+      case 'smear':
+        analyzeResult.smearDate = api.dateToIso(analyzeResult.smearDate)
+        analyzeArray = 'smearResults'
+        break
+      case 'rw':
+        analyzeResult.rwDate = api.dateToIso(analyzeResult.rwDate)
+        analyzeArray = 'rwResults'
+        break
     }
     let push = {$push: {}}
     push.$push[analyzeArray] = analyzeResult
@@ -517,6 +525,46 @@ api.editPatientAnalyze = (Patient, Token) => (req, res) => {
           }
         })
         break
+      case 'smear':
+        analyzeResult.smearDate = api.dateToIso(analyzeResult.smearDate)
+        Patient.findOneAndUpdate({
+          _id: req.params.patId,
+          'smearResults._id': req.params.analyzeId
+        }, {
+          $set: {
+            'smearResults.$': analyzeResult
+          }
+        }, {
+          new: true
+        }, (err, patient) => {
+          if (err) res.status(400).json(err)
+          if (patient) {
+            res.status(200).json({success: true, message: 'Мазок изменен.', patient: patient})
+          } else {
+            res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+          }
+        })
+        break
+      case 'rw':
+        analyzeResult.rwDate = api.dateToIso(analyzeResult.rwDate)
+        Patient.findOneAndUpdate({
+          _id: req.params.patId,
+          'rwResults._id': req.params.analyzeId
+        }, {
+          $set: {
+            'rwResults.$': analyzeResult
+          }
+        }, {
+          new: true
+        }, (err, patient) => {
+          if (err) res.status(400).json(err)
+          if (patient) {
+            res.status(200).json({success: true, message: 'RW изменен.', patient: patient})
+          } else {
+            res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+          }
+        })
+        break
     }
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
@@ -530,6 +578,12 @@ api.removePatientAnalyze = (Patient, Token) => (req, res) => {
         break
       case 'urineClinical':
         analyzeArray = 'urineClinicalResults'
+        break
+      case 'smear':
+        analyzeArray = 'smearResults'
+        break
+      case 'rw':
+        analyzeArray = 'rwResults'
         break
     }
     let pull = {$pull: {}}
