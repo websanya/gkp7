@@ -117,7 +117,7 @@ api.getPatientsByFIO = (Patient, Token) => (req, res) => {
       } else {
         val += '\\s+[А-Я]*'
       }
-      Patient.find({'fio': {$regex: new RegExp(val), $options: 'i'}}, (err, patients) => {
+      Patient.find({'fio': {$regex: new RegExp(val), $options: 'i'}}, {}, {limit: 20}, (err, patients) => {
         if (err) res.status(400).json(err)
         if (patients.length === 0) {
           res.status(200).json({success: false, message: 'Пациенты не найдены.'})
