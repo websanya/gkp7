@@ -9,15 +9,19 @@ module.exports = (app) => {
    * Маршруты про пациентов.
    */
 
+  //* Добавляем пациента в базу.
   app.route('/api/v1/patient')
     .post(passport.authenticate('jwt', config.session), api.makePatient(models.Patient, app.get('secret')))
 
-  app.route('/api/v1/patient/:patId/')
-    .delete(passport.authenticate('jwt', config.session), api.removePatient(models.Patient, app.get('secret')))
-
+  //* Редактируем пациента в базе.
   app.route('/api/v1/patient/:patId/')
     .put(passport.authenticate('jwt', config.session), api.updatePatient(models.Patient, app.get('secret')))
 
+  //* Удаляем пациента из базы.
+  app.route('/api/v1/patient/:patId/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatient(models.Patient, app.get('secret')))
+
+  //* Подгружаем пациентов из базы по ФИО.
   app.route('/api/v1/patient/:lastName/:firstName/:middleName/')
     .get(passport.authenticate('jwt', config.session), api.getPatientsByFIO(models.Patient, app.get('secret')))
 
@@ -25,11 +29,16 @@ module.exports = (app) => {
    * Маршруты про медосмотры.
    */
 
+  //* Ставим на медосмотр.
+  app.route('/api/v1/patient/:patId/medos/')
+    .post(passport.authenticate('jwt', config.session), api.addActiveMedos(models.Patient, app.get('secret')))
+
+  //* Убираем с медосмотра.
+  app.route('/api/v1/patient/:patId/medos/')
+    .delete(passport.authenticate('jwt', config.session), api.removeActiveMedos(models.Patient, app.get('secret')))
+
   app.route('/api/v1/patient/medos/:lastName/:firstName/:middleName/')
     .get(passport.authenticate('jwt', config.session), api.getMedosPatientsByFIO(models.Patient, app.get('secret')))
-
-  app.route('/api/v1/patient/:patId/active-medos/')
-    .post(passport.authenticate('jwt', config.session), api.addActiveMedos(models.Patient, app.get('secret')))
 
   app.route('/api/v1/patient/:patId/harms/')
     .put(passport.authenticate('jwt', config.session), api.updatePatientHarms(models.Patient, app.get('secret')))

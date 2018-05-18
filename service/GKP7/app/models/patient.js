@@ -38,6 +38,10 @@ const Schema = mongoose.Schema({
     type: String,
     required: true
   },
+  address: {
+    type: String,
+    required: true
+  },
   activeJob: JobSchema,
   hasActiveMedos: {
     type: Boolean,
@@ -68,12 +72,6 @@ const Schema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }
-})
-
-//* Проверить работает или нет.
-Schema.pre('save', function (next) {
-  this.vaccines.sort(sortByCreated)
-  next()
 })
 
 mongoose.model('Patient', Schema)

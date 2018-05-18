@@ -88,10 +88,7 @@ const DoctorSchema = mongoose.Schema({
 })
 
 const Schema = mongoose.Schema({
-  medosType: {
-    typeId: Number,
-    typeName: String
-  },
+  medosType: Number,
   medosJob: JobSchema,
   medosRegistrationDate: {
     type: Date,

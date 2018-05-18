@@ -2,34 +2,12 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema({
   jobCompany: {
-    jobCompanyId: {
-      type: Number,
-      required: true
-    },
-    jobCompanyName: {
-      type: String,
-      required: true
-    }
+    type: Number,
+    required: true
   },
   jobDivision: {
-    jobDivisionId: {
-      type: Number,
-      required: true
-    },
-    jobDivisionName: {
-      type: String,
-      required: true
-    }
-  },
-  jobDepartment: {
-    jobDepartmentId: {
-      type: Number,
-      required: true
-    },
-    jobDepartmentName: {
-      type: String,
-      required: true
-    }
+    type: Number,
+    required: true
   },
   jobName: {
     type: String,

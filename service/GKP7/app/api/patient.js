@@ -4,87 +4,79 @@ const api = {}
  * Методы про пациентов.
  */
 
+//* Добавляем пациента в базу.
 api.makePatient = (Patient, Token) => (req, res) => {
   if (Token) {
-    if (req.body.fio === undefined) {
+    let tempPatient = req.body.editPatient
+    if (!tempPatient.fio) {
       api.errorHandler(res, 'Не указаны ФИО')
-    } else if (req.body.dateBirth === undefined) {
+    } else if (!tempPatient.dateBirth) {
       api.errorHandler(res, 'Не указана дата рождения')
-    } else if (req.body.sex === undefined) {
+    } else if (tempPatient.sex === '' || tempPatient.sex === undefined) {
       api.errorHandler(res, 'Не указан пол')
-    } else if (req.body.passport === undefined) {
+    } else if (!tempPatient.passport) {
       api.errorHandler(res, 'Не указан паспорт')
-    } else if (req.body.phone === undefined) {
+    } else if (!tempPatient.address) {
+      api.errorHandler(res, 'Не указан адрес')
+    } else if (!tempPatient.phone) {
       api.errorHandler(res, 'Не указан номер телефона')
     } else {
       //* Создаем объект будущего пациента.
       let patient = new Patient({
-        fio: req.body.fio,
-        dateBirth: api.dateToIso(req.body.dateBirth),
-        sex: req.body.sex,
-        passport: req.body.passport,
-        phone: req.body.phone
+        fio: tempPatient.fio,
+        dateBirth: api.dateToIso(tempPatient.dateBirth),
+        sex: tempPatient.sex,
+        passport: tempPatient.passport,
+        address: tempPatient.address,
+        phone: tempPatient.phone
       })
-      if (req.body.activeJob !== undefined) {
-        patient.activeJob = req.body.activeJob
+      if (tempPatient.activeJob !== undefined) {
+        patient.activeJob = tempPatient.activeJob
       }
       //* Сохраняем в базу данных.
       patient.save(err => {
         if (err) {
-          console.log(err)
-          return res.status(400).json({
+          res.status(200).json({
             success: false,
             message: 'Ошибка при создании пациента.'
           })
+        } else {
+          res.status(200).json({
+            success: true,
+            message: 'Пациент создан успешно!'
+          })
         }
-        res.json({
-          success: true,
-          message: 'Пациент создан успешно!'
-        })
       })
     }
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.removePatient = (Patient, Token) => (req, res) => {
-  if (Token) {
-    Patient.findByIdAndRemove(req.params.patId, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Пациент удален.'})
-      } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
+//* Редактируем пациента в базе.
 api.updatePatient = (Patient, Token) => (req, res) => {
   if (Token) {
-    let tempObj = {}
-    if (req.body.fio !== undefined) {
-      tempObj.fio = req.body.fio
+    let tempPatient = req.body.editPatient
+    if (!tempPatient.fio) {
+      api.errorHandler(res, 'Не указаны ФИО')
+    } else if (!tempPatient.dateBirth) {
+      api.errorHandler(res, 'Не указана дата рождения')
+    } else if (tempPatient.sex === '' || tempPatient.sex === undefined || tempPatient.sex === null) {
+      api.errorHandler(res, 'Не указан пол')
+    } else if (!tempPatient.passport) {
+      api.errorHandler(res, 'Не указан паспорт')
+    } else if (!tempPatient.address) {
+      api.errorHandler(res, 'Не указан адрес')
+    } else if (!tempPatient.phone) {
+      api.errorHandler(res, 'Не указан номер телефона')
     }
-    if (req.body.sex !== undefined) {
-      tempObj.sex = req.body.sex
+    if (!tempPatient.activeJob) {
+      tempPatient.activeJob = {}
+    } else {
+      tempPatient.activeJob.updatedAt = new Date()
     }
-    if (req.body.dateBirth !== undefined) {
-      tempObj.dateBirth = new Date(api.dateToIso(req.body.dateBirth))
-    }
-    if (req.body.passport !== undefined) {
-      tempObj.passport = req.body.passport
-    }
-    if (req.body.phone !== undefined) {
-      tempObj.phone = req.body.phone
-    }
-    if (req.body.activeJob !== undefined) {
-      tempObj.activeJob = req.body.activeJob
-    }
-    if (tempObj === {}) {
-      return res.status(200).json({success: false, message: 'Вы не задали параметров для обновления.'})
-    }
+    tempPatient.updatedAt = new Date()
+    tempPatient.dateBirth = api.dateToIso(tempPatient.dateBirth)
     Patient.findByIdAndUpdate(req.params.patId, {
-      $set: tempObj
+      $set: tempPatient
     }, {
       new: true
     }, (err, patient) => {
@@ -98,6 +90,21 @@ api.updatePatient = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Удаляем пациента из базы.
+api.removePatient = (Patient, Token) => (req, res) => {
+  if (Token) {
+    Patient.findByIdAndRemove(req.params.patId, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Пациент удален.'})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Подгружаем пациентов из базы по ФИО.
 api.getPatientsByFIO = (Patient, Token) => (req, res) => {
   if (Token) {
     if (req.params.lastName || req.params.firstName || req.params.middleName) {
@@ -135,6 +142,45 @@ api.getPatientsByFIO = (Patient, Token) => (req, res) => {
  * Методы про медосмотры.
  */
 
+//* Ставим на медосмотр.
+api.addActiveMedos = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempMedos = req.body.activeMedos
+    tempMedos.updatedAt = new Date()
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $set: {activeMedos: tempMedos, hasActiveMedos: true}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Пациент зарегистрирован на медосмотр.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Убираем с медосмотра.
+api.removeActiveMedos = (Patient, Token) => (req, res) => {
+  if (Token) {
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $unset: {activeMedos: true},
+      $set: {hasActiveMedos: false}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Пациент снят с медосмотра.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
 api.getMedosPatientsByFIO = (Patient, Token) => (req, res) => {
   if (Token) {
     if (req.params.lastName || req.params.firstName || req.params.middleName) {
@@ -165,27 +211,6 @@ api.getMedosPatientsByFIO = (Patient, Token) => (req, res) => {
     } else {
       res.status(200).json({success: false, message: 'Пустой запрос.'})
     }
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-api.addActiveMedos = (Patient, Token) => (req, res) => {
-  let tempMedos = {
-    medosType: req.body.currentMedos.medosType,
-    medosJob: req.body.currentMedos.medosJob
-  }
-  if (Token) {
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $set: {activeMedos: tempMedos, hasActiveMedos: true}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Медосмотр добавлен.', patient: patient})
-      } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
-      }
-    })
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
@@ -662,6 +687,10 @@ api.getVaccinesById = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+/**
+ * Обработчик ошибок.
+ */
+
 api.errorHandler = (res, msg) => {
   res.json({
     success: false,
@@ -669,8 +698,12 @@ api.errorHandler = (res, msg) => {
   })
 }
 
+/**
+ * Утилитарные методы.
+ */
+
+//* Переводим дату из формата dd.mm.yyyy в yyyy-mm-dd.
 api.dateToIso = (input) => {
-  //* Переводим дату из формата dd.mm.yyyy в yyyy-mm-dd.
   const inputDate = input
   const pattern = /(\d{2})\.(\d{2})\.(\d{4})/
   return inputDate.replace(pattern, '$3-$2-$1')

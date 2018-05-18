@@ -5,7 +5,11 @@ const api = {}
 //* Вернуть всю базу предприятий.
 api.getAllCompanies = (Company, Token) => (req, res) => {
   if (Token) {
-    Company.find({}, (err, companies) => {
+    Company.find({}, {}, {
+      sort: {
+        companyId: 1
+      }
+    }, (err, companies) => {
       if (err) res.status(400).json(err)
       if (companies) {
         res.status(200).json({success: true, companies: companies})
