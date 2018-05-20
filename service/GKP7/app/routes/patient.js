@@ -49,20 +49,29 @@ module.exports = (app) => {
   app.route('/api/v1/patient/:patId/harms/')
     .put(passport.authenticate('jwt', config.session), api.updatePatientHarms(models.Patient, app.get('secret')))
 
+  //* Добавляем осмотр доктора.
   app.route('/api/v1/patient/:patId/doctorResult/')
     .post(passport.authenticate('jwt', config.session), api.addDoctorResult(models.Patient, app.get('secret')))
 
+  //* Редактируем осмотр доктора.
   app.route('/api/v1/patient/:patId/doctorResult/:resultId/')
     .put(passport.authenticate('jwt', config.session), api.updateDoctorResult(models.Patient, app.get('secret')))
 
-  app.route('/api/v1/patient/:patId/medosFinal/')
-    .post(passport.authenticate('jwt', config.session), api.addFinalResult(models.Patient, app.get('secret')))
-
+  //* Добавляем обследование.
   app.route('/api/v1/patient/:patId/examResult/')
     .post(passport.authenticate('jwt', config.session), api.addExamResult(models.Patient, app.get('secret')))
 
+  //* Редактируем обследование.
   app.route('/api/v1/patient/:patId/examResult/:examId/')
     .put(passport.authenticate('jwt', config.session), api.updateExamResult(models.Patient, app.get('secret')))
+
+  //* Архивируем медосмотр.
+  app.route('/api/v1/patient/:patId/medosFinal/')
+    .post(passport.authenticate('jwt', config.session), api.addFinalResult(models.Patient, app.get('secret')))
+
+  //* Подгружаем пациентов на медосмотре из базы по ФИО.
+  app.route('/api/v1/patient/archive/:lastName/:firstName/:middleName/')
+    .get(passport.authenticate('jwt', config.session), api.getArchivePatientsByFIO(models.Patient, app.get('secret')))
 
   /**
    * Маршруты про снимки.

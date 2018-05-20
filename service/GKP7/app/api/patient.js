@@ -259,6 +259,7 @@ api.updatePatientHarms = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Добавляем осмотр доктора.
 api.addDoctorResult = (Patient, Token) => (req, res) => {
   if (Token) {
     let tempDoctorResult = req.body.doctorResult
@@ -277,6 +278,7 @@ api.addDoctorResult = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Редактируем осмотр доктора.
 api.updateDoctorResult = (Patient, Token) => (req, res) => {
   if (Token) {
     let tempDoctorResult = req.body.doctorResult
@@ -298,6 +300,48 @@ api.updateDoctorResult = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Добавляем обследование.
+api.addExamResult = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempExamResult = req.body.examResult
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $push: {'activeMedos.medosExamResults': tempExamResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Обследование добавлено.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Редактируем обследование.
+api.updateExamResult = (Patient, Token) => (req, res) => {
+  let tempExamResult = req.body.examResult
+  if (Token) {
+    Patient.findOneAndUpdate({
+      _id: req.params.patId,
+      'activeMedos.medosExamResults._id': req.params.examId
+    }, {
+      $set: {'activeMedos.medosExamResults.$': tempExamResult}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Обследование изменено.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Архивируем медосмотр.
 api.addFinalResult = (Patient, Token) => (req, res) => {
   if (Token) {
     let tempMedos = req.body.medosResult
@@ -318,42 +362,40 @@ api.addFinalResult = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.addExamResult = (Patient, Token) => (req, res) => {
+//* Подгружаем пациентов, у которых есть архив, из базы по ФИО.
+api.getArchivePatientsByFIO = (Patient, Token) => (req, res) => {
   if (Token) {
-    let tempExamResult = req.body.examResult
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $push: {'activeMedos.medosExamResults': tempExamResult}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Обследование добавлено.', patient: patient})
+    if (req.params.lastName || req.params.firstName || req.params.middleName) {
+      let val = ''
+      if (req.params.lastName !== ' ') {
+        val += req.params.lastName + '[А-Я]*'
       } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+        val += '[А-Я]*'
       }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-api.updateExamResult = (Patient, Token) => (req, res) => {
-  let tempExamResult = req.body.examResult
-  if (Token) {
-    Patient.findOneAndUpdate({
-      _id: req.params.patId,
-      'activeMedos.medosExamResults._id': req.params.examId
-    }, {
-      $set: {'activeMedos.medosExamResults.$': tempExamResult}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Обследование изменено.', patient: patient})
+      if (req.params.firstName !== ' ') {
+        val += '\\s+' + req.params.firstName + '[А-Я]*'
       } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+        val += '\\s+[А-Я]*'
       }
-    })
+      if (req.params.middleName !== ' ') {
+        val += '\\s+' + req.params.middleName + '[А-Я]*'
+      } else {
+        val += '\\s+[А-Я]*'
+      }
+      Patient.find({
+        'fio': {$regex: new RegExp(val), $options: 'i'},
+        'medosArchive': { $gt: [] }
+      }, {}, {limit: 20}, (err, patients) => {
+        if (err) res.status(400).json(err)
+        if (patients.length === 0) {
+          res.status(200).json({success: false, message: 'Архивы не найдены.'})
+        } else {
+          res.status(200).json({success: true, patients: patients})
+        }
+      })
+    } else {
+      res.status(200).json({success: false, message: 'Пустой запрос.'})
+    }
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
