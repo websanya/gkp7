@@ -181,6 +181,7 @@ api.removeActiveMedos = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Подгружаем пациентов на медосмотре из базы по ФИО.
 api.getMedosPatientsByFIO = (Patient, Token) => (req, res) => {
   if (Token) {
     if (req.params.lastName || req.params.firstName || req.params.middleName) {
@@ -214,11 +215,31 @@ api.getMedosPatientsByFIO = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.updatePatientHarms = (Patient, Token) => (req, res) => {
-  let tempHarms = req.body.medosHarms
-  let tempDoctors = req.body.medosDoctors
-  let tempExams = req.body.medosExams
+//* Редактируем параметры пациента.
+api.updatePatientParameters = (Patient, Token) => (req, res) => {
   if (Token) {
+    let tempParameters = req.body.medosParameters
+    Patient.findByIdAndUpdate(req.params.patId, {
+      $set: {'activeMedos.medosParameters': tempParameters}
+    }, {
+      new: true
+    }, (err, patient) => {
+      if (err) res.status(400).json(err)
+      if (patient) {
+        res.status(200).json({success: true, message: 'Данные обновлены.', patient: patient})
+      } else {
+        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
+      }
+    })
+  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
+}
+
+//* Редактируем вредности пациента.
+api.updatePatientHarms = (Patient, Token) => (req, res) => {
+  if (Token) {
+    let tempHarms = req.body.medosHarms
+    let tempDoctors = req.body.medosDoctors
+    let tempExams = req.body.medosExams
     Patient.findByIdAndUpdate(req.params.patId, {
       $set: {
         'activeMedos.medosHarms': tempHarms,
@@ -231,24 +252,6 @@ api.updatePatientHarms = (Patient, Token) => (req, res) => {
       if (err) res.status(400).json(err)
       if (patient) {
         res.status(200).json({success: true, message: 'Вредности обновлены.', patient: patient})
-      } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-api.updatePatientParameters = (Patient, Token) => (req, res) => {
-  let tempParameters = req.body.medosParameters
-  if (Token) {
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $set: {'activeMedos.medosParameters': tempParameters}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Данные обновлены.', patient: patient})
       } else {
         res.status(200).json({success: false, message: 'Такой пациент не найден.'})
       }
@@ -358,62 +361,7 @@ api.updateExamResult = (Patient, Token) => (req, res) => {
  * Методы про снимки.
  */
 
-api.getPatientRgResults = (Patient, Token) => (req, res) => {
-  if (Token) {
-    Patient.findById(req.params.patId, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        if (patient.rgResults.length === 0) {
-          res.status(200).json({success: false, message: 'У этого пациента нет снимков.'})
-        } else {
-          res.status(200).json({success: true, rgResults: patient.rgResults})
-        }
-      } else {
-        res.status(200).json({success: false, message: 'Такого пациента не найдено.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-api.registerPatientRgResult = (Patient, Token) => (req, res) => {
-  if (Token) {
-    let tempRgResult = req.body.activeRgResult
-    tempRgResult.rgDate = api.dateToIso(tempRgResult.rgDate)
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $set: {activeRgResult: tempRgResult, hasActiveRgResult: true}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Снимок зарегистрирован.', patient: patient})
-      } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
-api.finalizePatientRgResult = (Patient, Token) => (req, res) => {
-  if (Token) {
-    let tempRgResult = req.body.rgResult
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $unset: {activeRgResult: true},
-      $set: {hasActiveRgResult: false},
-      $push: {rgResults: tempRgResult}
-    }, {
-      new: true
-    }, (err, patient) => {
-      if (err) res.status(400).json(err)
-      if (patient) {
-        res.status(200).json({success: true, message: 'Описание добавлено.', patient: patient})
-      } else {
-        res.status(200).json({success: false, message: 'Такой пациент не найден.'})
-      }
-    })
-  } else return res.status(403).send({success: false, message: 'Нет доступа.'})
-}
-
+//* Добавляем снимок пациенту.
 api.addPatientRgResult = (Patient, Token) => (req, res) => {
   if (Token) {
     let tempRgResult = req.body.rgResult
@@ -433,11 +381,11 @@ api.addPatientRgResult = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.removePatientActiveRg = (Patient, Token) => (req, res) => {
+//* Удаляем снимок пациенту.
+api.removePatientRgResult = (Patient, Token) => (req, res) => {
   if (Token) {
     Patient.findByIdAndUpdate(req.params.patId, {
-      $unset: {activeRgResult: true},
-      $set: {hasActiveRgResult: false}
+      $pull: {'rgResults': {_id: req.params.rgId}}
     }, {
       new: true
     }, (err, patient) => {
@@ -451,16 +399,21 @@ api.removePatientActiveRg = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
-api.removePatientCertainRg = (Patient, Token) => (req, res) => {
+//* Удаляем снимок пациенту.
+api.editPatientRgResult = (Patient, Token) => (req, res) => {
   if (Token) {
-    Patient.findByIdAndUpdate(req.params.patId, {
-      $pull: {'rgResults': {_id: req.params.rgId}}
+    let tempRgResult = req.body.rgResult
+    Patient.findOneAndUpdate({
+      _id: req.params.patId,
+      'rgResults._id': req.params.rgId
+    }, {
+      $set: {'rgResults.$': tempRgResult}
     }, {
       new: true
     }, (err, patient) => {
       if (err) res.status(400).json(err)
       if (patient) {
-        res.status(200).json({success: true, message: 'Зарегистрированный снимок удален.', patient: patient})
+        res.status(200).json({success: true, message: 'Снимок отредактирован.', patient: patient})
       } else {
         res.status(200).json({success: false, message: 'Такой пациент не найден.'})
       }

@@ -37,14 +37,17 @@ module.exports = (app) => {
   app.route('/api/v1/patient/:patId/medos/')
     .delete(passport.authenticate('jwt', config.session), api.removeActiveMedos(models.Patient, app.get('secret')))
 
+  //* Подгружаем пациентов на медосмотре из базы по ФИО.
   app.route('/api/v1/patient/medos/:lastName/:firstName/:middleName/')
     .get(passport.authenticate('jwt', config.session), api.getMedosPatientsByFIO(models.Patient, app.get('secret')))
 
-  app.route('/api/v1/patient/:patId/harms/')
-    .put(passport.authenticate('jwt', config.session), api.updatePatientHarms(models.Patient, app.get('secret')))
-
+  //* Редактируем параметры пациента.
   app.route('/api/v1/patient/:patId/parameters/')
     .put(passport.authenticate('jwt', config.session), api.updatePatientParameters(models.Patient, app.get('secret')))
+
+  //* Редактируем вредности пациента.
+  app.route('/api/v1/patient/:patId/harms/')
+    .put(passport.authenticate('jwt', config.session), api.updatePatientHarms(models.Patient, app.get('secret')))
 
   app.route('/api/v1/patient/:patId/doctorResult/')
     .post(passport.authenticate('jwt', config.session), api.addDoctorResult(models.Patient, app.get('secret')))
@@ -65,18 +68,17 @@ module.exports = (app) => {
    * Маршруты про снимки.
    */
 
+  //* Добавляем снимок пациенту.
   app.route('/api/v1/patient/:patId/rg/')
-    .get(passport.authenticate('jwt', config.session), api.getPatientRgResults(models.Patient, app.get('secret')))
-  app.route('/api/v1/patient/:patId/rg/')
-    .post(passport.authenticate('jwt', config.session), api.registerPatientRgResult(models.Patient, app.get('secret')))
-  app.route('/api/v1/patient/:patId/rg/')
-    .put(passport.authenticate('jwt', config.session), api.finalizePatientRgResult(models.Patient, app.get('secret')))
-  app.route('/api/v1/patient/:patId/rg/active/')
-    .delete(passport.authenticate('jwt', config.session), api.removePatientActiveRg(models.Patient, app.get('secret')))
-  app.route('/api/v1/patient/:patId/rg/:rgId/')
-    .delete(passport.authenticate('jwt', config.session), api.removePatientCertainRg(models.Patient, app.get('secret')))
-  app.route('/api/v1/patient/:patId/rgFull/')
     .post(passport.authenticate('jwt', config.session), api.addPatientRgResult(models.Patient, app.get('secret')))
+
+  //* Редактируем снимок пациенту.
+  app.route('/api/v1/patient/:patId/rg/:rgId/')
+    .put(passport.authenticate('jwt', config.session), api.editPatientRgResult(models.Patient, app.get('secret')))
+
+  //* Удаляем снимок пациенту.
+  app.route('/api/v1/patient/:patId/rg/:rgId/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatientRgResult(models.Patient, app.get('secret')))
 
   /**
    * Маршруты про анализы.

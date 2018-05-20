@@ -6,26 +6,17 @@ const Schema = mongoose.Schema({
     required: true
   },
   rgType: {
-    rgTypeId: {
-      type: Number,
-      required: true,
-      default: 1
-    },
-    rgTypeName: {
-      type: String,
-      required: true,
-      default: 'Флюорография'
-    }
+    type: Number,
+    required: true,
+    default: 1
   },
   rgLocation: {
     rgLocationType: {
-      type: Number,
-      required: true
+      type: Boolean,
+      required: true,
+      default: true
     },
-    rgLocationComment: {
-      type: String,
-      required: true
-    }
+    rgLocationComment: String
   },
   rgResult: {
     rgResultType: {
@@ -49,12 +40,6 @@ const Schema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }
-})
-
-//* Проверить работает или нет.
-Schema.method('update', function (updates, callback) {
-  Object.assign(this, updates, {updatedAt: new Date()})
-  this.parent().save(callback)
 })
 
 module.exports = Schema

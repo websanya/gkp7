@@ -9,14 +9,6 @@ const MedInspectionSchema = require('./medos/medos')
 
 const mongoose = require('mongoose')
 
-// Sort anything
-let sortByCreated = function (a, b) {
-  // - negative a before b
-  // 0 no change
-  // + positive a after b
-  return b.createdAt - a.createdAt
-}
-
 const Schema = mongoose.Schema({
   fio: {
     type: String,
@@ -49,11 +41,6 @@ const Schema = mongoose.Schema({
   },
   activeMedos: MedInspectionSchema,
   medosArchive: [MedInspectionSchema],
-  hasActiveRgResult: {
-    type: Boolean,
-    default: false
-  },
-  activeRgResult: RGSchema,
   rgResults: [RGSchema],
   bloodResults: [bloodResultSchema],
   urineClinicalResults: [urineClinicalResultSchema],
