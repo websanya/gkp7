@@ -28,6 +28,7 @@ const Schema = mongoose.Schema({
       required: true
     }
   },
+  medosId: mongoose.Schema.Types.ObjectId,
   createdAt: {
     type: Date,
     default: Date.now

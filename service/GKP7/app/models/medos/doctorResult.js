@@ -14,6 +14,11 @@ const Schema = mongoose.Schema({
     diagnosisComment: String
   },
   doctorConclusion: [String],
+  doctorRecommendations: {
+    recommendationDoctors: [String],
+    recommendationExams: [String],
+    recommendationRecovery: Number
+  },
   createdAt: {
     type: Date,
     default: Date.now
