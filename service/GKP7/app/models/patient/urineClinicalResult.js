@@ -10,25 +10,13 @@ const Schema = mongoose.Schema({
     required: true
   },
   urineGeneral: {
-    color: {
-      colorType: Number,
-      colorName: String
-    },
-    reaction: {
-      reactionType: Number,
-      reactionName: String
-    },
+    color: Number,
+    reaction: Number,
     density: String,
     transparency: Boolean,
     protein: String,
-    glucose: {
-      glucoseType: Number,
-      glucoseName: String
-    },
-    acetone: {
-      acetoneType: Number,
-      acetoneName: String
-    },
+    glucose: String,
+    acetone: Number,
     bile: Boolean
   },
   urineElements: {
@@ -43,10 +31,7 @@ const Schema = mongoose.Schema({
       waxy: String,
       epithelial: String
     },
-    salts: {
-      saltsId: Number,
-      saltsName: String
-    },
+    salts: Number,
     slime: Boolean
   },
   medosId: mongoose.Schema.Types.ObjectId,

@@ -84,12 +84,15 @@ module.exports = (app) => {
    * Маршруты про анализы.
    */
 
+  //* Добавляем анализ пациенту.
   app.route('/api/v1/patient/:patId/analyze/')
     .post(passport.authenticate('jwt', config.session), api.addPatientAnalyze(models.Patient, app.get('secret')))
 
+  //* Редактируем анализ пациенту.
   app.route('/api/v1/patient/:patId/analyze/:analyzeId/')
     .put(passport.authenticate('jwt', config.session), api.editPatientAnalyze(models.Patient, app.get('secret')))
 
+  //* Удаляем анализ пациенту.
   app.route('/api/v1/patient/:patId/analyze/:analyzeId/')
     .delete(passport.authenticate('jwt', config.session), api.removePatientAnalyze(models.Patient, app.get('secret')))
 

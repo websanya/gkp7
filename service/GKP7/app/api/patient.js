@@ -425,6 +425,7 @@ api.editPatientRgResult = (Patient, Token) => (req, res) => {
  * Методы про анализы.
  */
 
+//* Добавляем анализ пациенту.
 api.addPatientAnalyze = (Patient, Token) => (req, res) => {
   if (Token) {
     const analyzeResult = req.body.analyzeResult
@@ -462,6 +463,7 @@ api.addPatientAnalyze = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Редактируем анализ пациенту.
 api.editPatientAnalyze = (Patient, Token) => (req, res) => {
   if (Token) {
     let analyzeResult = req.body.analyzeResult
@@ -547,6 +549,7 @@ api.editPatientAnalyze = (Patient, Token) => (req, res) => {
   } else return res.status(403).send({success: false, message: 'Нет доступа.'})
 }
 
+//* Удаляем анализ пациенту.
 api.removePatientAnalyze = (Patient, Token) => (req, res) => {
   if (Token) {
     let analyzeArray = ''

@@ -25,9 +25,7 @@ const Schema = mongoose.Schema({
     normoblasts: String,
     tng: String,
     sugar: String,
-    cholesterol: String,
-    prothrombin: String,
-    inr: String
+    cholesterol: String
   },
   medosId: mongoose.Schema.Types.ObjectId,
   createdAt: {
