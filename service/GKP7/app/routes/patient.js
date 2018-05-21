@@ -109,15 +109,22 @@ module.exports = (app) => {
    * Маршруты про прививки.
    */
 
+  //* Добавить прививку пациенту.
   app.route('/api/v1/vaccine')
     .post(passport.authenticate('jwt', config.session), api.addVaccine(models.Patient, app.get('secret')))
 
-  app.route('/api/v1/vaccine/:vacId/')
-    .get(passport.authenticate('jwt', config.session), api.getVaccineById(models.Patient, app.get('secret')))
-
-  app.route('/api/v1/vaccine')
-    .put(passport.authenticate('jwt', config.session), api.updateVaccineById(models.Patient, app.get('secret')))
-
+  //* Подугражем прививки пациента.
   app.route('/api/v1/vaccines/:patId/')
     .get(passport.authenticate('jwt', config.session), api.getVaccinesById(models.Patient, app.get('secret')))
+
+  //* Удаляем снимок пациенту.
+  app.route('/api/v1/patient/:patId/vaccine/:vacId/')
+    .delete(passport.authenticate('jwt', config.session), api.removePatientVaccine(models.Patient, app.get('secret')))
+
+  /**
+   * Маршруты про отчеты.
+   */
+
+  app.route('/api/v1/report/day/')
+    .post(passport.authenticate('jwt', config.session), api.getDayReportPatients(models.Patient, app.get('secret')))
 }
